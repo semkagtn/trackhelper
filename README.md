@@ -9,7 +9,7 @@ Helper tool for working with audio files
 ### Installation
 * `git clone https://github.com/semkagtn/trackhelper` - clone repo
 * `cd trackhelper` - change directory to project
-* `./build` - run build script
+* `./build.sh` - run build script
 
 ### Usage
 `java -jar trackhelper.jar`
