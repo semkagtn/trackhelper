@@ -7,7 +7,10 @@ Helper tool for working with audio files
 * [Java 8](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 ### Installation
-* **git clone**
-* **cd trackhelper**
-* **./build**
+* `git clone https://github.com/semkagtn/trackhelper` - clone repo
+* `cd trackhelper` - change directory to project
+* `./build` - run build script
+
+### Usage
+`java -jar trackhelper.jar`
 
