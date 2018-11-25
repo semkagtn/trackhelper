@@ -29,6 +29,7 @@
         <mp3agic.version>0.9.1</mp3agic.version>
         <scala-logging.version>3.9.0</scala-logging.version>
         <scopt.version>3.7.0</scopt.version>
+        <scala-scrapper.version>2.1.0</scala-scrapper.version>
 
         <!-- Test dependencies-->
         <scalatest.version>3.0.5</scalatest.version>
@@ -63,11 +64,13 @@
             <groupId>com.typesafe.scala-logging</groupId>
             <artifactId>scala-logging_${scala.major-version}</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.scopt/scopt -->
         <dependency>
             <groupId>com.github.scopt</groupId>
             <artifactId>scopt_${scala.major-version}</artifactId>
-            <version>${scopt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.ruippeixotog</groupId>
+            <artifactId>scala-scraper_${scala.major-version}</artifactId>
         </dependency>
     </dependencies>
 
@@ -111,14 +114,14 @@
                 <version>${scala-logging.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.rogach</groupId>
-                <artifactId>scallop_${scala.major-version}</artifactId>
-                <version>${scallop.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.github.scopt</groupId>
                 <artifactId>scopt_${scala.major-version}</artifactId>
                 <version>${scopt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ruippeixotog</groupId>
+                <artifactId>scala-scraper_${scala.major-version}</artifactId>
+                <version>${scala-scrapper.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
