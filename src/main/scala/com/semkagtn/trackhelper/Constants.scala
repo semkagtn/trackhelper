@@ -2,12 +2,24 @@ package com.semkagtn.trackhelper
 
 import com.semkagtn.trackhelper.util.FileUtil
 
+import scala.io.Source
+
 /**
   * @author semkagtn
   */
 object Constants {
 
-  final val ConfigFile: String = s"${FileUtil.getHomeDir}/.trackhelper.conf"
+  /**
+    * User configuration file
+    */
+  final val ConfigFile: String =
+    s"${FileUtil.getHomeDir}/.trackhelper.conf"
 
-  final val AppVersion: String = "0.0.0"
+  /**
+    * Application version
+    */
+  final val AppVersion: String =
+    Source.fromResource("version")
+      .getLines.toList.headOption
+      .getOrElse(throw new IllegalStateException("No 'version' resource that contains app version"))
 }

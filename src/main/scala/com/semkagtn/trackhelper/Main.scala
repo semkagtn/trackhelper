@@ -2,8 +2,10 @@ package com.semkagtn.trackhelper
 
 import com.semkagtn.trackhelper.application.{ApplicationImpl, Params, ParamsParserImpl}
 import com.semkagtn.trackhelper.configuration.DefaultConfigurationProvider
+import com.semkagtn.trackhelper.extractor.ItunesUrlTrackMetadataExtractor
 import com.semkagtn.trackhelper.formatter.TrackMetadataFormatterImpl
 import com.typesafe.scalalogging.StrictLogging
+import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 
 import scala.util.{Failure, Success, Try}
 
@@ -20,7 +22,8 @@ object Main
 
   private val application = new ApplicationImpl(
     trackListFormatter = new TrackMetadataFormatterImpl(trackListFormat, unknownValue),
-    fileNameFormatter = new TrackMetadataFormatterImpl(fileNameFormat, unknownValue)
+    fileNameFormatter = new TrackMetadataFormatterImpl(fileNameFormat, unknownValue),
+    itunesUrlTrackMetadataExtractor = new ItunesUrlTrackMetadataExtractor(JsoupBrowser())
   )
 
   private val paramsParser = new ParamsParserImpl
@@ -30,6 +33,7 @@ object Main
       case Some(params) =>
         params match {
           case p: Params.WriteTags => application.writeTags(p)
+          case p: Params.ExtractFromItunes => application.extractFromItunes(p)
         }
       case None =>
         Failure(new IllegalArgumentException("Wrong parameters"))

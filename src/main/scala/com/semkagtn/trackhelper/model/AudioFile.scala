@@ -1,10 +1,12 @@
 package com.semkagtn.trackhelper.model
 
 import com.mpatric.mp3agic.{ID3v24Tag, Mp3File}
+import com.semkagtn.trackhelper.model.TrackMetadata.Tags
 import com.semkagtn.trackhelper.util.FileUtil
 
 import scala.util.{Failure, Try}
 import scala.util.control.NonFatal
+import scala.concurrent.duration._
 
 /**
   * @author semkagtn
@@ -19,14 +21,14 @@ sealed trait AudioFile {
   /**
     * Returns track metadata from tags
     */
-  def tags: TrackMetadata
+  def metadata: TrackMetadata
 
   /**
     * Dumps file to file system
     */
   def dump(): Unit
 
-  def withTags(newTags: TrackMetadata): AudioFile
+  def withTags(newTags: Tags): AudioFile
 
 
   final override def hashCode(): Int =
@@ -38,7 +40,7 @@ sealed trait AudioFile {
   }
 
   final override def toString: String =
-    s"AudioFile(descriptor=$descriptor,tags=$tags)"
+    s"AudioFile(descriptor=$descriptor,metadata=$metadata)"
 }
 
 object AudioFile {
@@ -51,12 +53,12 @@ object AudioFile {
 
   class Mp3 private(protected val mp3: Mp3File,
                     val descriptor: FileDescriptor,
-                    val tags: TrackMetadata) extends AudioFile {
+                    val metadata: TrackMetadata) extends AudioFile {
 
     override def dump(): Unit = {
       val tag = new ID3v24Tag
-      tags match {
-        case TrackMetadata(publisher, artist, title, year) =>
+      metadata.tags match {
+        case Tags(publisher, artist, title, year) =>
           publisher.foreach(tag.setPublisher)
           artist.foreach(tag.setArtist)
           title.foreach(tag.setTitle)
@@ -70,8 +72,8 @@ object AudioFile {
       }
     }
 
-    override def withTags(newTags: TrackMetadata): AudioFile =
-      new Mp3(mp3, descriptor, newTags)
+    override def withTags(newTags: Tags): AudioFile =
+      new Mp3(mp3, descriptor, metadata.copy(tags = newTags))
   }
 
   object Mp3 {
@@ -80,10 +82,14 @@ object AudioFile {
       val mp3 = new Mp3File(descriptor.absolutePath)
       val tags = Option(mp3.getId3v2Tag).map { tag =>
         TrackMetadata(
-          publisher = Try(tag.getPublisher).toOption.flatMap(Option(_)),
-          artist = Try(tag.getArtist).toOption.flatMap(Option(_)),
-          title = Try(tag.getTitle).toOption.flatMap(Option(_)),
-          year = Try(tag.getYear.toInt).toOption.flatMap(Option(_))
+          tags = Tags(
+            publisher = Try(tag.getPublisher).toOption.flatMap(Option(_)),
+            artist = Try(tag.getArtist).toOption.flatMap(Option(_)),
+            title = Try(tag.getTitle).toOption.flatMap(Option(_)),
+            year = Try(tag.getYear.toInt).toOption.flatMap(Option(_))
+          ),
+          bitrate = Try(mp3.getBitrate).toOption.flatMap(Option(_)),
+          duration = Try(mp3.getLengthInSeconds.seconds).toOption
         )
       }.getOrElse(TrackMetadata.Empty)
       new Mp3(mp3, descriptor, tags)

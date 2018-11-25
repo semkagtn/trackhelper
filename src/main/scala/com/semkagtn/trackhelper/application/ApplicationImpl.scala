@@ -1,20 +1,21 @@
 package com.semkagtn.trackhelper.application
 
 import com.semkagtn.trackhelper.application.ApplicationImpl.TrackId
-import com.semkagtn.trackhelper.application.Params.WriteTags
+import com.semkagtn.trackhelper.application.Params.{ExtractFromItunes, WriteTags}
+import com.semkagtn.trackhelper.extractor.ItunesUrlTrackMetadataExtractor
 import com.semkagtn.trackhelper.formatter.TrackMetadataFormatter
 import com.semkagtn.trackhelper.model.{AudioFile, FileDescriptor, TrackMetadata}
 import com.semkagtn.trackhelper.util.FileUtil
 import com.typesafe.scalalogging.StrictLogging
 
-import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 /**
   * @author semkagtn
   */
 class ApplicationImpl(trackListFormatter: TrackMetadataFormatter,
-                      fileNameFormatter: TrackMetadataFormatter)
+                      fileNameFormatter: TrackMetadataFormatter,
+                      itunesUrlTrackMetadataExtractor: ItunesUrlTrackMetadataExtractor)
   extends Application
     with StrictLogging {
 
@@ -30,28 +31,32 @@ class ApplicationImpl(trackListFormatter: TrackMetadataFormatter,
         fileNameTrackId -> descriptor
       }
       .toMap
-    Source.fromFile(trackListPath)
-      .getLines
-      .map(_.trim)
-      .filter(_.nonEmpty)
-      .toList
-      .map { line =>
+      FileUtil.readNonEmptyLines(trackListPath).map { line =>
         val metadata = trackListFormatter.parse(line).get
         val trackId = TrackId.fromMetadata(metadata)
         (line, metadata, trackId)
       }
       .foreach { case (line, metadata, trackId) =>
-        handleLine(descriptorsMap, line, metadata, trackId)
+        handleTracklistLine(descriptorsMap, line, metadata, trackId)
       }
   }
 
-  private def handleLine(descriptorsMap: Map[TrackId, FileDescriptor],
+  override def extractFromItunes(params: ExtractFromItunes): Try[Unit] = Try {
+    import params._
+
+    val fileLines = itunesUrlTrackMetadataExtractor
+      .extract(url)
+      .map(trackListFormatter.render)
+    FileUtil.writeLines(outputFile, fileLines)
+  }
+
+  private def handleTracklistLine(descriptorsMap: Map[TrackId, FileDescriptor],
                          line: String,
                          metadata: TrackMetadata,
                          trackId: TrackId): Unit = {
     descriptorsMap.get(trackId).map(AudioFile.read) match {
       case Some(Success(audioFile)) =>
-        audioFile.withTags(metadata).dump()
+        audioFile.withTags(metadata.tags).dump()
       case Some(Failure(t)) =>
         logger.warn(t.getMessage)
       case None =>
@@ -68,9 +73,9 @@ object ApplicationImpl {
 
     def fromMetadata(metadata: TrackMetadata): TrackId =
       TrackId(
-        artist = metadata.artist.getOrElse(
+        artist = metadata.tags.artist.getOrElse(
           throw new IllegalArgumentException(s"No artist field in metadata $metadata")),
-        title = metadata.title.getOrElse(
+        title = metadata.tags.title.getOrElse(
           throw new IllegalArgumentException(s"No title field in metadata $metadata"))
       )
   }

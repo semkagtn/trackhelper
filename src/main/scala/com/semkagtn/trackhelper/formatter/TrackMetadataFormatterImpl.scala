@@ -1,7 +1,8 @@
 package com.semkagtn.trackhelper.formatter
 
 import com.semkagtn.trackhelper.model.TrackMetadata
-import com.semkagtn.trackhelper.util.RegexUtil
+import com.semkagtn.trackhelper.model.TrackMetadata.Tags
+import com.semkagtn.trackhelper.util.{DurationUtil, RegexUtil}
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -44,13 +45,15 @@ class TrackMetadataFormatterImpl(format: String,
   }
 
   override def render(metadata: TrackMetadata): String = metadata match {
-    case TrackMetadata(publisher, artist, title, year) =>
+    case TrackMetadata(Tags(publisher, artist, title, year), bpm, duration) =>
       Placeholder.values.foldLeft(format) { (replaced, placeholder) =>
         val value = placeholder match {
           case Placeholder.Publisher => publisher.getOrElse(unknownValue)
           case Placeholder.Artist => artist.getOrElse(unknownValue)
           case Placeholder.Title => title.getOrElse(unknownValue)
           case Placeholder.Year => year.map(_.toString).getOrElse(unknownValue)
+          case Placeholder.Bitrate => bpm.map(_.toString).getOrElse(unknownValue)
+          case Placeholder.Duration => duration.map(DurationUtil.renderMinutesSeconds).getOrElse(unknownValue)
         }
         replaced.replace(placeholder.toString, value)
       }
@@ -69,10 +72,31 @@ class TrackMetadataFormatterImpl(format: String,
       case (metadata, (value, placeholder)) =>
         val newValue = Some(value).filter(_ != unknownValue)
         placeholder match {
-          case Placeholder.Publisher => metadata.copy(publisher = newValue)
-          case Placeholder.Artist => metadata.copy(artist = newValue)
-          case Placeholder.Title => metadata.copy(title = newValue)
-          case Placeholder.Year => metadata.copy(year = newValue.flatMap(v => Try(v.toInt).toOption))
+          case Placeholder.Publisher => metadata.copy(
+            tags = metadata.tags.copy(publisher = newValue)
+          )
+          case Placeholder.Artist =>
+            metadata.copy(
+              tags = metadata.tags.copy(artist = newValue)
+            )
+          case Placeholder.Title =>
+            metadata.copy(
+              tags = metadata.tags.copy(title = newValue)
+            )
+          case Placeholder.Year =>
+            metadata.copy(
+              tags = metadata.tags.copy(
+                year = newValue.flatMap(parseInt)
+              )
+            )
+          case Placeholder.Bitrate =>
+            metadata.copy(
+              bitrate = newValue.flatMap(parseInt)
+            )
+          case Placeholder.Duration =>
+            metadata.copy(
+              duration = newValue.flatMap(DurationUtil.parseMinutesSeconds)
+            )
         }
     }
   }
@@ -87,12 +111,16 @@ object TrackMetadataFormatterImpl {
     case object Artist extends Placeholder("{artist}")
     case object Title extends Placeholder("{title}")
     case object Year extends Placeholder("{year}")
+    case object Bitrate extends Placeholder("{bitrate}")
+    case object Duration extends Placeholder("{duration}")
 
     val values: Set[Placeholder] = Set(
       Publisher,
       Artist,
       Title,
-      Year
+      Year,
+      Bitrate,
+      Duration
     )
   }
 
@@ -100,10 +128,9 @@ object TrackMetadataFormatterImpl {
     val conditions = Placeholder.values.map { placeholder =>
       val occurrence = countPlaceholderOccurrence(format, placeholder)
       placeholder match {
-        case Placeholder.Publisher => occurrence <= 1
         case Placeholder.Artist => occurrence == 1
         case Placeholder.Title => occurrence == 1
-        case Placeholder.Year => occurrence <= 1
+        case _ => occurrence <= 1
       }
     }
     conditions.forall(identity)
@@ -120,4 +147,7 @@ object TrackMetadataFormatterImpl {
     }
     cnt(0, 0)
   }
+
+  private def parseInt(string: String): Option[Int] =
+    Try(string.toInt).toOption
 }

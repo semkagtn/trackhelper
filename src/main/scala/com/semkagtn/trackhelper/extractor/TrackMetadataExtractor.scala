@@ -7,5 +7,5 @@ import com.semkagtn.trackhelper.model.TrackMetadata
   */
 trait TrackMetadataExtractor[A] {
 
-  def extract(obj: A): TrackMetadata
+  def extract(obj: A): Seq[TrackMetadata]
 }
