@@ -11,6 +11,9 @@ Helper tool for working with audio files
 * `cd trackhelper` - Change directory to project.
 * `./build.sh 0.1.1` - Run build script. You can build other version (see changelog below).
 
+### Configuration
+You can change configuration in the `~/.trackhelper.conf` file.
+
 ### Usage
 `java -jar trackhelper.jar`
 
