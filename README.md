@@ -22,3 +22,4 @@ You can change configuration in the `~/.trackhelper.conf` file.
 * **0.1.0** - Added "extract-from-itunes" command.
 * **0.1.1** - Some little fixes
 * **0.1.2** - Bug fix: now correctly parse artist
+* **0.1.3** - ItunesUrlTrackMetadataExtractorSpec - ignored

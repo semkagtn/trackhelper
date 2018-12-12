@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 /**
   * @author semkagtn
   */
-//@Ignore // for manual running only
+@Ignore // for manual running only
 class ItunesUrlTrackMetadataExtractorSpec
   extends ParameterizedSpecBase[TestCase] {
 
