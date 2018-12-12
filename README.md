@@ -9,7 +9,7 @@ Helper tool for working with audio files
 ### Installation
 * `git clone https://github.com/semkagtn/trackhelper` - Clone repository.
 * `cd trackhelper` - Change directory to project.
-* `./build.sh 0.1.1` - Run build script. You can build other version (see changelog below).
+* `./build.sh 0.1.2` - Run build script. You can build other version (see changelog below).
 
 ### Configuration
 You can change configuration in the `~/.trackhelper.conf` file.
@@ -21,3 +21,4 @@ You can change configuration in the `~/.trackhelper.conf` file.
 * **0.0.0** - Initial version. Added "set-tags" command.
 * **0.1.0** - Added "extract-from-itunes" command.
 * **0.1.1** - Some little fixes
+* **0.1.2** - Bug fix: now correctly parse artist

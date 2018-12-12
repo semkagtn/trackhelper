@@ -44,7 +44,7 @@ class ItunesUrlTrackMetadataExtractor(browser: Browser)
         TrackMetadata(
           tags = Tags(
             publisher = publisher,
-            artist = albumArtist.orElse(extractArtist(trackRow)),
+            artist = extractArtist(trackRow).orElse(albumArtist),
             title = extractTitle(trackRow),
             year = year
           ),

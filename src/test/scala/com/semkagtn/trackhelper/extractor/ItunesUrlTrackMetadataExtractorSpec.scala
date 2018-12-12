@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 /**
   * @author semkagtn
   */
-@Ignore // for manual running only
+//@Ignore // for manual running only
 class ItunesUrlTrackMetadataExtractorSpec
   extends ParameterizedSpecBase[TestCase] {
 
@@ -102,6 +102,42 @@ class ItunesUrlTrackMetadataExtractorSpec
           ),
           bitrate = None,
           duration = Some(6.minutes + 7.second)
+        )
+      )
+    ),
+    TestCase(
+      description = "artist album, one track different artist",
+      url = "https://itunes.apple.com/ru/album/oxide-hold-back-skittles-single/1273306925?l=en",
+      expectedResult = Seq(
+        TrackMetadata(
+          tags = Tags(
+            publisher = Some("Dispatch Recordings"),
+            artist = Some("Amoss & Fre4knc"),
+            title = Some("Oxide"),
+            year = Some(2015)
+          ),
+          bitrate = None,
+          duration = Some(6.minutes + 6.seconds)
+        ),
+        TrackMetadata(
+          tags = Tags(
+            publisher = Some("Dispatch Recordings"),
+            artist = Some("Amoss"),
+            title = Some("Hold Back"),
+            year = Some(2015)
+          ),
+          bitrate = None,
+          duration = Some(5.minutes + 44.seconds)
+        ),
+        TrackMetadata(
+          tags = Tags(
+            publisher = Some("Dispatch Recordings"),
+            artist = Some("Amoss"),
+            title = Some("Skittles"),
+            year = Some(2015)
+          ),
+          bitrate = None,
+          duration = Some(6.minutes + 52.seconds)
         )
       )
     )
