@@ -9,7 +9,7 @@ Helper tool for working with audio files
 ### Installation
 * `git clone https://github.com/semkagtn/trackhelper` - Clone repository.
 * `cd trackhelper` - Change directory to project.
-* `./build.sh 0.1.2` - Run build script. You can build other version (see changelog below).
+* `./build.sh 0.1.3` - Run build script. You can build other version (see changelog below).
 
 ### Configuration
 You can change configuration in the `~/.trackhelper.conf` file.
